@@ -513,7 +513,8 @@ type serviceOptions struct {
 	secrets     opts.SecretOpt
 	configs     opts.ConfigOpt
 
-	isolation string
+	isolation  string
+	privileged bool
 }
 
 func newServiceOptions() *serviceOptions {
@@ -637,6 +638,7 @@ func (options *serviceOptions) ToService(ctx context.Context, apiClient client.N
 				StopGracePeriod: options.ToStopGracePeriod(flags),
 				Healthcheck:     healthConfig,
 				Isolation:       container.Isolation(options.isolation),
+				Privileged:      options.privileged,
 			},
 			Networks:      networks,
 			Resources:     resources,
@@ -809,6 +811,9 @@ func addServiceFlags(flags *pflag.FlagSet, opts *serviceOptions, defaultFlagValu
 	flags.SetAnnotation(flagStopSignal, "version", []string{"1.28"})
 	flags.StringVar(&opts.isolation, flagIsolation, "", "Service container isolation mode")
 	flags.SetAnnotation(flagIsolation, "version", []string{"1.35"})
+
+	flags.BoolVar(&opts.privileged, flagPrivileged, false, "Give extended privileges to the service")
+	flags.SetAnnotation(flagPrivileged, "version", []string{"1.35"})
 }
 
 const (
@@ -908,4 +913,5 @@ const (
 	flagConfigAdd               = "config-add"
 	flagConfigRemove            = "config-rm"
 	flagIsolation               = "isolation"
+	flagPrivileged              = "privileged"
 )
